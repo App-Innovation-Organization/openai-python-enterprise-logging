@@ -6,10 +6,13 @@
       "value": "japaneast"
     },
     "email": {
-      "value": "mihourimoto@microsoft.com"
+      "value": "name@domain.com"
     },
     "publisherName": {
       "value": "name"
+    },
+    "suffix": {
+      "value": "mysuffix"
     }
   }
 }

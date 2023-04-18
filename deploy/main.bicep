@@ -2,6 +2,7 @@
 param location string
 param email string
 param publisherName string
+param suffix string
 
 // Virtual Network that serves as the gateway
 resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
@@ -172,7 +173,7 @@ resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
 
 // Create API Management
 resource apim 'Microsoft.ApiManagement/service@2020-06-01-preview' = {
-  name: 'apim-openai'
+  name: 'apim-openai-${suffix}'
   location: location
   sku: {
     name: 'Developer'
@@ -186,14 +187,5 @@ resource apim 'Microsoft.ApiManagement/service@2020-06-01-preview' = {
       vnetid: vnetapp.id
       subnetResourceId: snetapi.id
     }
-    additionalLocations: [
-      {
-        location: 'japaneast'
-        sku: {
-          name: 'Developer'
-          capacity: 1
-        }
-      }
-    ]
   }
 }
