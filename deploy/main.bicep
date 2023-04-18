@@ -71,7 +71,8 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
         name: 'appGatewayIpConfig'
         properties: {
           subnet: {
-            id: snetgateway.id
+            //id: snetgateway.id
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-gateway', 'snet-gateway')
           }
         }
       }
@@ -82,8 +83,9 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
         properties: {
           // 後で、パブリックIPを固定する
           privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: snetgateway.id
+          publicIPAddress: {
+            //id: snetgateway.id
+            id: resourceId('Microsoft.Network/publicIPAddresses', 'gateway-openai-ip')
           }
         }
       }
@@ -115,7 +117,7 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
     ]
     httpListeners: [
       {
-        name: 'appGatewayHttpsListener'
+        name: 'appGatewayHttpListener'
         properties: {
           frontendIPConfiguration: {
             //id: appgateway.properties.frontendIPConfigurations[0].id
@@ -124,11 +126,6 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
           frontendPort: {
             //id: appgateway.properties.frontendPorts[1].id
             id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', 'gateway-openai', 'https')
-          }
-          protocol: 'Https'
-          sslCertificate: {
-            //id: appgateway.properties.sslCertificates[0].id
-            id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', 'gateway-openai', 'appGatewaySslCertificate')
           }
         }
       }
