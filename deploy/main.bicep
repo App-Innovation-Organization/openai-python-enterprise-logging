@@ -53,3 +53,100 @@ resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = 
     addressPrefix: '10.1.2.0/24'
   }
 }
+
+
+// Craete Application Gateway, subenet name "snet-gateway"
+resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
+  name: 'gateway-openai'
+  location: location
+  properties: {
+    sku: {
+      // 後で選択できるように変更する
+      name: 'Standard_v2'
+      tier: 'Standard_v2'
+      capacity: 2
+    }
+    gatewayIPConfigurations: [
+      {
+        name: 'appGatewayIpConfig'
+        properties: {
+          subnet: {
+            id: snetgateway.id
+          }
+        }
+      }
+    ]
+    frontendIPConfigurations: [
+      {
+        name: 'appGatewayFrontendIP'
+        properties: {
+          // 後で、パブリックIPを固定する
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: snetgateway.id
+          }
+        }
+      }
+    ]
+    frontendPorts: [
+      {
+        name: 'https'
+        properties: {
+          port: 443
+        }
+      }
+    ]
+    backendAddressPools: [
+      {
+        name: 'appGatewayBackendPool'
+      }
+    ]
+    backendHttpSettingsCollection: [
+      {
+        name: 'appGatewayBackendHttpSettings'
+        properties: {
+          port: 80
+          protocol: 'Http'
+          cookieBasedAffinity: 'Disabled'
+          pickHostNameFromBackendAddress: false
+          requestTimeout: 30
+        }
+      }
+    ]
+    httpListeners: [
+      {
+        name: 'appGatewayHttpsListener'
+        properties: {
+          frontendIPConfiguration: {
+            id: appgateway.properties.frontendIPConfigurations[0].id
+          }
+          frontendPort: {
+            id: appgateway.properties.frontendPorts[1].id
+          }
+          protocol: 'Https'
+          sslCertificate: {
+            id: appgateway.properties.sslCertificates[0].id
+          }
+        }
+      }
+    ]
+    //ルールはあとで書く
+    requestRoutingRules: [
+      {
+        name: 'rule1'
+        properties: {
+          ruleType: 'Basic'
+          httpListener: {
+            id: appgateway.properties.httpListeners[0].id
+          }
+          backendAddressPool: {
+            id: appgateway.properties.backendAddressPools[0].id
+          }
+          backendHttpSettings: {
+            id: appgateway.properties.backendHttpSettingsCollection[0].id
+          }
+        }
+      }
+    ]
+  }
+}
