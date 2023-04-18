@@ -1,5 +1,7 @@
 // Define the parameter for location
 param location string
+param email string
+param publisherName string
 
 // Virtual Network that serves as the gateway
 resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
@@ -54,9 +56,22 @@ resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = 
   }
 }
 
+// Application Gateway Public IP
+resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-08-01' = {
+  name: 'pip-gateway-openai'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAddressVersion: 'IPv4'
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+  }
+}
 
 // Craete Application Gateway, subenet name "snet-gateway"
-resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
+resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
   name: 'gateway-openai'
   location: location
   properties: {
@@ -85,16 +100,16 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
             //id: snetgateway.id
-            id: resourceId('Microsoft.Network/publicIPAddresses', 'gateway-openai-ip')
+            id: publicIPAddress.id
           }
         }
       }
     ]
     frontendPorts: [
       {
-        name: 'https'
+        name: 'http'
         properties: {
-          port: 443
+          port: 80
         }
       }
     ]
@@ -125,7 +140,7 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
           }
           frontendPort: {
             //id: appgateway.properties.frontendPorts[1].id
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', 'gateway-openai', 'https')
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', 'gateway-openai', 'http')
           }
         }
       }
@@ -136,9 +151,10 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
         name: 'rule1'
         properties: {
           ruleType: 'Basic'
+          priority: 10
           httpListener: {
             //id: appgateway.properties.httpListeners[0].id
-            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', 'gateway-openai', 'appGatewayHttpsListener')
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', 'gateway-openai', 'appGatewayHttpListener')
           }
           backendAddressPool: {
             //id: appgateway.properties.backendAddressPools[0].id
@@ -148,6 +164,34 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
             //id: appgateway.properties.backendHttpSettingsCollection[0].id
             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', 'gateway-openai', 'appGatewayBackendHttpSettings')
           }
+        }
+      }
+    ]
+  }
+}
+
+// Create API Management
+resource apim 'Microsoft.ApiManagement/service@2020-06-01-preview' = {
+  name: 'apim-openai'
+  location: location
+  sku: {
+    name: 'Developer'
+    capacity: 1
+  }
+  properties: {
+    publisherEmail: email
+    publisherName: publisherName
+    virtualNetworkType: 'External'
+    virtualNetworkConfiguration: {
+      vnetid: vnetapp.id
+      subnetResourceId: snetapi.id
+    }
+    additionalLocations: [
+      {
+        location: 'japaneast'
+        sku: {
+          name: 'Developer'
+          capacity: 1
         }
       }
     ]

@@ -4,6 +4,12 @@
   "parameters": {
     "location": {
       "value": "japaneast"
+    },
+    "email": {
+      "value": "mihourimoto@microsoft.com"
+    },
+    "publisherName": {
+      "value": "name"
     }
   }
 }
