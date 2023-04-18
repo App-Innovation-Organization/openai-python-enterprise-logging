@@ -118,14 +118,17 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
         name: 'appGatewayHttpsListener'
         properties: {
           frontendIPConfiguration: {
-            id: appgateway.properties.frontendIPConfigurations[0].id
+            //id: appgateway.properties.frontendIPConfigurations[0].id
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', 'gateway-openai', 'appGatewayFrontendIP')
           }
           frontendPort: {
-            id: appgateway.properties.frontendPorts[1].id
+            //id: appgateway.properties.frontendPorts[1].id
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', 'gateway-openai', 'https')
           }
           protocol: 'Https'
           sslCertificate: {
-            id: appgateway.properties.sslCertificates[0].id
+            //id: appgateway.properties.sslCertificates[0].id
+            id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', 'gateway-openai', 'appGatewaySslCertificate')
           }
         }
       }
@@ -137,13 +140,16 @@ resource appgateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
         properties: {
           ruleType: 'Basic'
           httpListener: {
-            id: appgateway.properties.httpListeners[0].id
+            //id: appgateway.properties.httpListeners[0].id
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', 'gateway-openai', 'appGatewayHttpsListener')
           }
           backendAddressPool: {
-            id: appgateway.properties.backendAddressPools[0].id
+            //id: appgateway.properties.backendAddressPools[0].id
+            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'gateway-openai', 'appGatewayBackendPool')
           }
           backendHttpSettings: {
-            id: appgateway.properties.backendHttpSettingsCollection[0].id
+            //id: appgateway.properties.backendHttpSettingsCollection[0].id
+            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', 'gateway-openai', 'appGatewayBackendHttpSettings')
           }
         }
       }
