@@ -13,6 +13,27 @@
     },
     "suffix": {
       "value": "mysuffix"
+    },
+    "openAiLocation": {
+      "value": "eastus"
+    },
+    "customSubDomainName": {
+      "value": "mysubdomain"
+    },
+    "deployments": {
+      "value": [
+        {
+          "name": "myChatGptModelDeployment",
+          "model": {
+            "format": "OpenAI",
+            "name": "gpt-35-turbo",
+            "version": "0301"
+          },
+          "scaleSettings": {
+            "scaleType": "Standard"
+          }
+        }
+      ]
     }
   }
 }

@@ -3,6 +3,9 @@ param location string
 param email string
 param publisherName string
 param suffix string
+param openAiLocation string
+param customSubDomainName string
+param deployments array = []
 
 // Virtual Network that serves as the gateway
 resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
@@ -187,5 +190,20 @@ resource apim 'Microsoft.ApiManagement/service@2020-06-01-preview' = {
       vnetid: vnetapp.id
       subnetResourceId: snetapi.id
     }
+  }
+}
+
+// OpenAI Account + Model
+module openAi 'modules/cognitiveservices.bicep' = {
+  name: 'my-openai-account'
+  scope: resourceGroup()
+  params: {
+    name: 'openai'
+    openaiLocation: openAiLocation
+    sku: {
+      name: 'S0'
+    }
+    customSubDomainName: customSubDomainName
+    deployments: deployments
   }
 }
