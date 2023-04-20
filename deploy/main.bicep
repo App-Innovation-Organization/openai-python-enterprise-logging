@@ -48,6 +48,9 @@ resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
   name: 'snet-api'
   properties: {
     addressPrefix: '10.1.1.0/24'
+    networkSecurityGroup: {
+      id: nsg.id
+    }
   }
 }
 
@@ -93,17 +96,6 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
         }
       }
     ]
-  }
-}
-
-// Connect the NSG(nsg-api) to the subnet(snet-api)
-resource subnetnsg 'Microsoft.Network/virtualNetworks/subnets/networkSecurityGroups@2020-11-01' = {
-  parent: snetapi
-  name: 'default'
-  properties: {
-    networkSecurityGroup: {
-      id: nsg.id
-    }
   }
 }
 
