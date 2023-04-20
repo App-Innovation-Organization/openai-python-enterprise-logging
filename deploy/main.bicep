@@ -60,6 +60,53 @@ resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = 
   }
 }
 
+// Create for Network Security Group
+resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
+  name: 'nsg-api'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'Allow-3443-Inbound'
+        properties: {
+          priority: 1000
+          protocol: 'Tcp'
+          access: 'Allow'
+          direction: 'Inbound'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '3443'
+        }
+      }
+      {
+        name: 'Allow-3443-Outbound'
+        properties: {
+          priority: 1000
+          protocol: 'Tcp'
+          access: 'Allow'
+          direction: 'Outbound'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '3443'
+        }
+      }
+    ]
+  }
+}
+
+// Connect the NSG(nsg-api) to the subnet(snet-api)
+resource subnetnsg 'Microsoft.Network/virtualNetworks/subnets/networkSecurityGroups@2020-11-01' = {
+  parent: snetapi
+  name: 'default'
+  properties: {
+    networkSecurityGroup: {
+      id: nsg.id
+    }
+  }
+}
+
 // Application Gateway Public IP
 resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-08-01' = {
   name: 'pip-gateway-openai'
