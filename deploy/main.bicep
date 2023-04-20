@@ -43,7 +43,7 @@ resource vnetapp 'Microsoft.Network/virtualNetworks@2020-11-01' = {
 }
 
 // Subnet for API Management
-resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
+resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
   parent: vnetapp
   name: 'snet-api'
   properties: {
@@ -52,7 +52,7 @@ resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing
 }
 
 // Subnet for Private Links
-resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
+resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
   parent: vnetapp
   name: 'snet-endpoints'
   properties: {
