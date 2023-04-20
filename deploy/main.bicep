@@ -5,7 +5,7 @@ param publisherName string
 param suffix string
 param openAiLocation string
 param customSubDomainName string
-param deployments array = []
+param openai_model_deployments array = []
 
 // Virtual Network that serves as the gateway
 resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
@@ -204,6 +204,6 @@ module openAi 'modules/cognitiveservices.bicep' = {
       name: 'S0'
     }
     customSubDomainName: customSubDomainName
-    deployments: deployments
+    deployments: openai_model_deployments
   }
 }

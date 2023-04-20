@@ -20,7 +20,7 @@
     "customSubDomainName": {
       "value": "mysubdomain"
     },
-    "deployments": {
+    "openai_model_deployments": {
       "value": [
         {
           "name": "myChatGptModelDeployment",
