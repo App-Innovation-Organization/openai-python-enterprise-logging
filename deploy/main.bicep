@@ -72,7 +72,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
       {
         name: 'Allow-3443-Inbound'
         properties: {
-          priority: 1000
+          priority: 1010
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Inbound'
@@ -83,9 +83,22 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
         }
       }
       {
+        name: 'Allow-443-Inbound'
+        properties: {
+          priority: 1020
+          protocol: 'Tcp'
+          access: 'Allow'
+          direction: 'Inbound'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '443'
+        }
+      }
+      {
         name: 'Allow-3443-Outbound'
         properties: {
-          priority: 1000
+          priority: 1030
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Outbound'
@@ -244,5 +257,46 @@ module openAi 'modules/cognitiveservices.bicep' = {
     }
     customSubDomainName: customSubDomainName
     deployments: openai_model_deployments
+  }
+}
+
+// diagnostic settings
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'openai-diagnostic-settings'
+  //location: location
+
+  //workspaceId: logAnalyticsWorkspace.id
+  //storageAccountId: storageAccount.id
+  //workspaceId: workspaceId
+
+  properties: {
+    logs: [
+      {
+        category: 'audit'
+        enabled: true
+        retentionPolicy: {
+          enabled: true
+          days: 30
+        }
+      }
+      {
+        category: 'allLogs'
+        enabled: true
+        retentionPolicy: {
+          enabled: true
+          days: 30
+        }
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+    ]
   }
 }
