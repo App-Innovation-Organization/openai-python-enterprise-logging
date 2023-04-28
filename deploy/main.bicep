@@ -49,7 +49,8 @@ resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
   properties: {
     addressPrefix: '10.1.1.0/24'
     networkSecurityGroup: {
-      id: nsg.id
+      // nsg-api.id
+      id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-api')
     }
   }
 }
