@@ -11,10 +11,10 @@ While the reference architecture can be deployed using the Azure Portal, leverag
 2. `git clone` this repository
 3. `cd` to the `deploy` directory
 4. Create a variable called `RG` and assign a resource group name you prefer (e.g., `RG=rg-openaiapp`)
-5. Create a vailable called `LOC` and assign the name of the Azure region you prefer (e.g., `RG=eastus`) 
+5. Create a vailable called `LOC` and assign the name of the Azure region you prefer (e.g., `LOC=eastus`) 
 6. Create the resource group: `az group create -l $LOC -n $RG`
-7. Preview the changes that will be made with the Bicep code: `az deployment group what-if --resource-group $RG --template-file main.bicep --parameters @main.parameters.json`
-8. Apply the Bicep code: `az deployment group create --resource-group $RG --template-file main.bicep --parameters @main.parameters.json`
+7. Preview the changes that will be made with the Bicep code: `az deployment group what-if --resource-group $RG --template-file main.bicep --parameters @main.parameters.json` (If asked to specify parameters `suffix` and `customSubDomainName` then set a unique value of your choice)
+8. Apply the Bicep code: `az deployment group create --resource-group $RG --template-file main.bicep --parameters @main.parameters.json` (If asked to specify parameters `suffix` and `customSubDomainName` then set a unique value of your choice)
 
 ### Provision the remaining Azure resources
 The current version of the Bicep does not deploy the following Azure resources, do they need to be deployed using other means such as through the Azure Portal GUI.

@@ -11,14 +11,8 @@
     "publisherName": {
       "value": "name"
     },
-    "suffix": {
-      "value": "mysuffix"
-    },
     "openAiLocation": {
       "value": "eastus"
-    },
-    "customSubDomainName": {
-      "value": "mysubdomain"
     },
     "openai_model_deployments": {
       "value": [
