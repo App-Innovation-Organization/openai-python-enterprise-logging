@@ -29,43 +29,8 @@ resource snetgateway 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
   }
 }
 
-// Virtual Network for workload
-resource vnetapp 'Microsoft.Network/virtualNetworks@2020-11-01' = {
-  name: 'vnet-app'
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        '10.1.0.0/16'
-      ]
-    }
-  }
-}
-
-// Subnet for API Management
-resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
-  parent: vnetapp
-  name: 'snet-api'
-  properties: {
-    addressPrefix: '10.1.1.0/24'
-    networkSecurityGroup: {
-      // nsg-api.id
-      id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-api')
-    }
-  }
-}
-
-// Subnet for Private Links
-resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
-  parent: vnetapp
-  name: 'snet-endpoints'
-  properties: {
-    addressPrefix: '10.1.2.0/24'
-  }
-}
-
-// Create for Network Security Group
-resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
+// Network Security Group for API Management subnet
+resource nsgapi 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   name: 'nsg-api'
   location: location
   properties: {
@@ -113,6 +78,43 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   }
 }
 
+// Virtual Network for workload
+resource vnetapp 'Microsoft.Network/virtualNetworks@2020-11-01' = {
+  name: 'vnet-app'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.1.0.0/16'
+      ]
+    }
+    subnets: [
+      {
+        name: 'snet-api'
+        properties: {
+          addressPrefix: '10.1.1.0/24'
+          networkSecurityGroup: { id: nsgapi.id }
+        }
+      }
+    ]
+  }
+}
+
+// Subnet for API Management
+resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
+  parent: vnetapp
+  name: 'snet-api'
+}
+
+// Subnet for Private Links
+resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
+  parent: vnetapp
+  name: 'snet-endpoints'
+  properties: {
+    addressPrefix: '10.1.2.0/24'
+  }
+}
+
 // Application Gateway Public IP
 resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-08-01' = {
   name: 'pip-gateway-openai'
@@ -127,7 +129,7 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-08-01' = {
   }
 }
 
-// Craete Application Gateway, subenet name "snet-gateway"
+// Craete Application Gateway
 resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
   name: 'gateway-openai'
   location: location
