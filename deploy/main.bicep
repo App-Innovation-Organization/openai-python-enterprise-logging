@@ -17,16 +17,22 @@ resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
         '10.0.0.0/16'
       ]
     }
+    subnets: [
+      {
+        name: 'snet-gateway'
+        properties: {
+          addressPrefix: '10.0.1.0/24'
+          networkSecurityGroup: { id: nsgapi.id }
+        }
+      }
+    ]  
   }
 }
 
 // Subnet that serves as the gateway
-resource snetgateway 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
+resource snetgateway 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
   parent: vnetgateway
   name: 'snet-gateway'
-  properties: {
-    addressPrefix: '10.0.1.0/24'
-  }
 }
 
 // Network Security Group for API Management subnet
