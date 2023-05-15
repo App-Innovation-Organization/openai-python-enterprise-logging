@@ -7,6 +7,30 @@ param openAiLocation string
 param customSubDomainName string
 param openai_model_deployments array = []
 
+// Network Security Group for App Gateway subnet
+resource nsggateway 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
+  name: 'nsg-gateway'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'AllowGatewayManager'
+        properties: {
+          description: 'Allow GatewayManager'
+          priority: 2702
+          protocol: '*'
+          access: 'Allow'
+          direction: 'Inbound'
+          sourceAddressPrefix: 'GatewayManager'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '65200-65535'
+        }
+      }
+    ]
+  }
+}        
+
 // Virtual Network that serves as the gateway
 resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   name: 'vnet-gateway'
@@ -22,7 +46,7 @@ resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
         name: 'snet-gateway'
         properties: {
           addressPrefix: '10.0.1.0/24'
-          networkSecurityGroup: { id: nsgapi.id }
+          networkSecurityGroup: { id: nsggateway.id }
         }
       }
     ]  
