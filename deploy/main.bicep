@@ -126,6 +126,13 @@ resource vnetapp 'Microsoft.Network/virtualNetworks@2020-11-01' = {
           networkSecurityGroup: { id: nsgapi.id }
         }
       }
+      {
+        name: 'snet-endpoints'
+        properties: {
+          addressPrefix: '10.1.2.0/24'
+          networkSecurityGroup: { id: nsgapi.id }
+        }
+      }
     ]
   }
 }
@@ -137,12 +144,9 @@ resource snetapi 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing
 }
 
 // Subnet for Private Links
-resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
+resource snetendpoints 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
   parent: vnetapp
   name: 'snet-endpoints'
-  properties: {
-    addressPrefix: '10.1.2.0/24'
-  }
 }
 
 // Application Gateway Public IP
@@ -175,8 +179,8 @@ resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
         name: 'appGatewayIpConfig'
         properties: {
           subnet: {
-            //id: snetgateway.id
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-gateway', 'snet-gateway')
+            id: snetgateway.id
+            //id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-gateway', 'snet-gateway')
           }
         }
       }
