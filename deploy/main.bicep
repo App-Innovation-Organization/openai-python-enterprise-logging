@@ -7,7 +7,7 @@ param openAiLocation string
 param customSubDomainName string
 param openai_model_deployments array = []
 
-// Network Security Group for App Gateway subnet
+// Network Security Group for the App Gateway subnet
 resource nsggateway 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   name: 'nsg-gateway'
   location: location
@@ -31,7 +31,7 @@ resource nsggateway 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   }
 }        
 
-// Virtual Network that serves as the gateway
+// Virtual Network for the App Gateway subnet
 resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   name: 'vnet-gateway'
   location: location
@@ -53,13 +53,13 @@ resource vnetgateway 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   }
 }
 
-// Subnet that serves as the gateway
+// Subnet that for the Application Gateway
 resource snetgateway 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
   parent: vnetgateway
   name: 'snet-gateway'
 }
 
-// Network Security Group for API Management subnet
+// Network Security Group for the API Management subnet
 resource nsgapi 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   name: 'nsg-api'
   location: location
@@ -169,7 +169,6 @@ resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
   location: location
   properties: {
     sku: {
-      // 後で選択できるように変更する
       name: 'Standard_v2'
       tier: 'Standard_v2'
       capacity: 2
@@ -180,7 +179,6 @@ resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
         properties: {
           subnet: {
             id: snetgateway.id
-            //id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-gateway', 'snet-gateway')
           }
         }
       }
@@ -189,10 +187,8 @@ resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
       {
         name: 'appGatewayFrontendIP'
         properties: {
-          // 後で、パブリックIPを固定する
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
-            //id: snetgateway.id
             id: publicIPAddress.id
           }
         }
@@ -238,7 +234,6 @@ resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
         }
       }
     ]
-    //ルールはあとで書く
     requestRoutingRules: [
       {
         name: 'rule1'
@@ -246,15 +241,12 @@ resource appgateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
           ruleType: 'Basic'
           priority: 10
           httpListener: {
-            //id: appgateway.properties.httpListeners[0].id
             id: resourceId('Microsoft.Network/applicationGateways/httpListeners', 'gateway-openai', 'appGatewayHttpListener')
           }
           backendAddressPool: {
-            //id: appgateway.properties.backendAddressPools[0].id
             id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'gateway-openai', 'appGatewayBackendPool')
           }
           backendHttpSettings: {
-            //id: appgateway.properties.backendHttpSettingsCollection[0].id
             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', 'gateway-openai', 'appGatewayBackendHttpSettings')
           }
         }
@@ -276,7 +268,6 @@ resource apim 'Microsoft.ApiManagement/service@2020-06-01-preview' = {
     publisherName: publisherName
     virtualNetworkType: 'External'
     virtualNetworkConfiguration: {
-      vnetid: vnetapp.id
       subnetResourceId: snetapi.id
     }
   }
